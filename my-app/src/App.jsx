@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Header from './components/Header';
-import SearchForm from './components/SearchForm';
-import DetailCard from './components/DetailCard';
-import DataTable from './components/DataTable';
+import Header from "./components/Header.jsx";
+import SearchForm from "./components/SearchForm.jsx";
+import DetailCard from "./components/DetailCard.jsx";
+import DataTable from "./components/DataTable.jsx";
 
 import './App.css'; 
 
