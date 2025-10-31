@@ -311,3 +311,11 @@ h2 {
     grid-template-columns: repeat(5, 1fr);
   }
 }
+
+h3.greeting {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #5A4BFF; /* Warna ungu gelap */
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
