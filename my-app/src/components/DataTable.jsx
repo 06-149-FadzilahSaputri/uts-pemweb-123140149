@@ -29,8 +29,8 @@ const DataTable = ({ facts, onRefresh, loading, animalType }) => {
               <tr>
                 <th style={{ width: '5%' }}>No.</th>
                 <th>Fakta (Bahasa Inggris)</th>
-                {/* Kolom "Panjang" DIGANTI "Jenis" */}
-                <th style={{ width: '20%' }}>Jenis</th>
+                {/* Kolom DIGANTI KEMBALI menjadi "Panjang (Karakter)" */}
+                <th style={{ width: '20%' }}>Panjang (Karakter)</th>
               </tr>
             </thead>
             <tbody>
@@ -38,8 +38,8 @@ const DataTable = ({ facts, onRefresh, loading, animalType }) => {
                 <tr key={fact.id}>
                   <td>{index + 1}</td>
                   <td>{fact.fact}</td>
-                  {/* Data "fact.length" DIGANTI "fact.type" */}
-                  <td>{fact.type}</td>
+                  {/* Data akan menampilkan "fact.length" */}
+                  <td>{fact.length}</td>
                 </tr>
               ))}
             </tbody>
