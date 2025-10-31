@@ -7,7 +7,7 @@ import SearchForm from './components/SearchForm.jsx';
 import DetailCard from './components/DetailCard.jsx';
 import DataTable from './components/DataTable.jsx';
 
-// !!! INI CARA MENGIMPOR CSS ANDA !!!
+// Impor CSS
 import './App.css'; 
 
 // Mengambil API Key dari .env
@@ -18,27 +18,26 @@ function App() {
   const [images, setImages] = useState([]);
   const [facts, setFacts] = useState([]);
   const [favorites, setFavorites] = useState([]);
-  const [currentAnimal, setCurrentAnimal] = useState(''); // Untuk logika UI
+  const [currentAnimal, setCurrentAnimal] = useState('');
+  const [nickname, setNickname] = useState(''); // STATE BARU (Permintaan #4)
   
   // State untuk Loading & Error
   const [loadingImages, setLoadingImages] = useState(false);
   const [loadingFacts, setLoadingFacts] = useState(false);
   const [error, setError] = useState(null);
   
-  // State untuk parameter pencarian terakhir (untuk refresh fakta)
-  const [lastFactParams, setLastFactParams] = useState({ count: 5 });
+  // State untuk refresh (sekarang menyimpan 'type' hewan)
+  const [lastFactParams, setLastFactParams] = useState({ count: 5, type: 'cat' });
 
   // === EFEK (useEffect) ===
-
-  // 1. Load favorites dari localStorage saat aplikasi pertama kali dibuka
+  // (Load/Save favorites tidak berubah, biarkan apa adanya)
   useEffect(() => {
     const storedFavorites = localStorage.getItem('animalFavorites');
     if (storedFavorites) {
       setFavorites(JSON.parse(storedFavorites));
     }
-  }, []); // Dependency array kosong, hanya jalan sekali
+  }, []);
 
-  // 2. Simpan favorites ke localStorage setiap kali state favorites berubah
   useEffect(() => {
     localStorage.setItem('animalFavorites', JSON.stringify(favorites));
   }, [favorites]);
@@ -46,7 +45,7 @@ function App() {
 
   // === FUNGSI API (Async/Await) ===
 
-  // Fetch Gambar Anjing
+  // Fetch Gambar Anjing (Logika breed di-update)
   const fetchDogImages = async (breed, count) => {
     setLoadingImages(true);
     setError(null);
@@ -55,12 +54,12 @@ function App() {
     if (breed === 'random') {
       url = `https://dog.ceo/api/breeds/image/random/${count}`;
     } else {
+      // URL untuk breed spesifik
       url = `https://dog.ceo/api/breed/${breed}/images/random/${count}`;
     }
     
     try {
       const response = await axios.get(url);
-      // Transformasi data: Dog API mengembalikan array of strings
       setImages(response.data.message.map(url => ({ id: url, url })));
     } catch (err) {
       setError('Gagal mengambil data gambar anjing.');
@@ -69,16 +68,21 @@ function App() {
     setLoadingImages(false);
   };
 
-  // Fetch Gambar Kucing
-  const fetchCatImages = async (count) => {
+  // Fetch Gambar Kucing (Logika breed di-update)
+  const fetchCatImages = async (breed, count) => {
     setLoadingImages(true);
     setError(null);
+    let url = `https://api.thecatapi.com/v1/images/search?limit=${count}`;
+
+    // Jika breed dipilih, tambahkan parameter breed_ids
+    if (breed !== 'random') {
+      url += `&breed_ids=${breed}`;
+    }
+
     try {
-      const response = await axios.get(
-        `https://api.thecatapi.com/v1/images/search?limit=${count}`,
-        { headers: { 'x-api-key': CAT_API_KEY } }
-      );
-      // Cat API mengembalikan array of objects (sudah sesuai)
+      const response = await axios.get(url, { 
+        headers: { 'x-api-key': CAT_API_KEY } 
+      });
       setImages(response.data);
     } catch (err) {
       setError('Gagal mengambil data gambar kucing. Pastikan API Key valid.');
@@ -87,18 +91,39 @@ function App() {
     setLoadingImages(false);
   };
 
-  // Fetch Fakta Kucing
+  // FUNGSI BARU: Fetch Fakta Anjing (Permintaan #1)
+  const fetchDogFacts = async (count) => {
+    setLoadingFacts(true);
+    setFacts([]);
+    try {
+      const response = await axios.get(`https://dog-api.kinduff.com/api/facts?number=${count}`);
+      // Transformasi data agar sesuai format tabel
+      const factsData = response.data.facts.map((fact, index) => ({
+        id: `dog-${index}`,
+        fact: fact,
+        type: 'Anjing' // (Permintaan #2)
+      }));
+      setFacts(factsData);
+    } catch (err) {
+      setError('Gagal mengambil data fakta anjing.');
+      console.error(err);
+    }
+    setLoadingFacts(false);
+  };
+
+  // Fetch Fakta Kucing (Di-update untuk format tabel baru)
   const fetchCatFacts = async (count) => {
     setLoadingFacts(true);
-    setFacts([]); // Kosongkan fakta lama saat refresh
+    setFacts([]);
     try {
       const response = await axios.get(`https://catfact.ninja/facts?limit=${count}`);
-      // Tambahkan ID unik buatan untuk key di React
-      const factsWithIds = response.data.data.map((fact, index) => ({
-        ...fact,
-        fact_id: `${fact.length}-${index}`
+      // Transformasi data agar sesuai format tabel
+      const factsData = response.data.data.map((fact, index) => ({
+        id: `cat-${index}-${fact.length}`,
+        fact: fact.fact,
+        type: 'Kucing' // (Permintaan #2)
       }));
-      setFacts(factsWithIds);
+      setFacts(factsData);
     } catch (err) {
       setError('Gagal mengambil data fakta kucing.');
       console.error(err);
@@ -108,45 +133,56 @@ function App() {
 
   // === HANDLER EVENT ===
 
-  // Handler utama saat form disubmit
+  // Handler utama saat form disubmit (Di-update)
   const handleSearch = (formData) => {
-    const { animalType, breed, imageCount, includeFacts } = formData;
+    // Ambil nickname dari form (Permintaan #4)
+    const { animalType, breed, imageCount, includeFacts, nickname } = formData;
     
-    setCurrentAnimal(animalType);
-    setImages([]); // Kosongkan galeri lama
-    setFacts([]); // Kosongkan fakta lama
+    // Simpan nickname ke state (Permintaan #4)
+    setNickname(nickname); 
 
+    setCurrentAnimal(animalType);
+    setImages([]); 
+    setFacts([]); 
+
+    // Simpan parameter untuk tombol Refresh
+    setLastFactParams({ count: imageCount, type: animalType });
+
+    // Logika simetris (Permintaan #1)
     if (animalType === 'dog') {
       fetchDogImages(breed, imageCount);
+      if (includeFacts) {
+        fetchDogFacts(imageCount); // Panggil fakta anjing
+      }
     } else { // animalType === 'cat'
-      fetchCatImages(imageCount);
+      fetchCatImages(breed, imageCount); // 'breed' bisa 'random' atau 'abys'
       if (includeFacts) {
         fetchCatFacts(imageCount);
-        setLastFactParams({ count: imageCount }); // Simpan untuk refresh
       }
     }
   };
 
-  // Handler untuk tombol refresh fakta
+  // Handler untuk tombol refresh fakta (Di-update)
   const handleRefreshFacts = () => {
-    fetchCatFacts(lastFactParams.count);
+    // Cek tipe hewan dari parameter terakhir
+    if (lastFactParams.type === 'dog') {
+      fetchDogFacts(lastFactParams.count);
+    } else {
+      fetchCatFacts(lastFactParams.count);
+    }
   };
 
-  // Handler untuk menambah/menghapus favorite
+  // Handler favorite (Tidak berubah)
   const handleFavorite = (imageUrl) => {
     setFavorites(prevFavorites => {
-      // Cek apakah sudah ada
       if (prevFavorites.includes(imageUrl)) {
-        // Hapus (filter)
         return prevFavorites.filter(url => url !== imageUrl);
       } else {
-        // Tambah (spread operator)
         return [...prevFavorites, imageUrl];
       }
     });
   };
 
-  // Cek apakah gambar adalah favorit (untuk props DetailCard)
   const isFavorite = (imageUrl) => favorites.includes(imageUrl);
   
   // === RENDER ===
@@ -158,11 +194,16 @@ function App() {
       <main className="container">
         <SearchForm onSearch={handleSearch} loading={loadingImages || loadingFacts} />
 
-        {/* Tampilkan Error jika ada */}
         {error && (
           <div className="error-message">
             <strong>Error:</strong> {error}
           </div>
+        )}
+
+        {/* Teks Sapaan Personal (Permintaan #4) */}
+        {/* Muncul jika nickname ada DAN tidak sedang loading/error */}
+        {nickname && !loadingImages && !error && (
+          <h3 className="greeting">Hai {nickname}, ini dia hasil untukmu!</h3>
         )}
 
         {/* Galeri Gambar */}
@@ -182,22 +223,23 @@ function App() {
           </div>
         )}
 
-        {/* Tabel Fakta (Hanya untuk kucing dan jika ada fakta atau sedang loading) */}
-        {currentAnimal === 'cat' && (facts.length > 0 || loadingFacts) && (
+        {/* Tabel Fakta (Sekarang simetris) */}
+        {/* Tampil jika ada fakta ATAU sedang loading fakta */}
+        {(facts.length > 0 || loadingFacts) && (
           <DataTable
             facts={facts}
             onRefresh={handleRefreshFacts}
             loading={loadingFacts}
+            animalType={currentAnimal} // Kirim tipe hewan untuk judul tabel
           />
         )}
         
-        {/* Galeri Favorit (Bonus) */}
+        {/* Galeri Favorit (Tidak berubah) */}
         {favorites.length > 0 && (
           <section className="favorites-section">
             <h2>⭐ Favorit Anda</h2>
             <div className="favorites-grid">
               {favorites.map(url => (
-                // Kita gunakan ulang komponen Card untuk favorit
                 <div key={url} className="card">
                    <img src={url} alt="Favorite" />
                 </div>
