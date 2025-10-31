@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
-// Impor Komponen (dengan .jsx)
+// Impor SEMUA komponen Ant Design di satu tempat
+import { Layout, Row, Col, Spin, Alert, Typography, Card } from 'antd'; 
 import Header from './components/Header.jsx';
 import SearchForm from './components/SearchForm.jsx';
 import DetailCard from './components/DetailCard.jsx';
 import DataTable from './components/DataTable.jsx';
 
-// Impor CSS
-import './App.css'; 
+const { Content } = Layout;
+const { Title } = Typography;
 
-// Mengambil API Key dari .env
+// Mengambil API Key dari .env (Sudah benar posisinya)
 const CAT_API_KEY = import.meta.env.VITE_CAT_API_KEY;
 
+
 // --- DATA ANJING PALSU (MOCK DATA) ---
-// Kita gunakan ini karena API aslinya rusak.
 const MOCK_DOG_FACTS = [
   "Indra penciuman seekor anjing 10.000 kali lebih kuat dari manusia.",
   "Basenji adalah satu-satunya ras anjing yang tidak bisa menggonggong.",
@@ -25,23 +25,19 @@ const MOCK_DOG_FACTS = [
 ];
 // ------------------------------------
 
-
 function App() {
-  // === STATE ===
+  // === STATE (Tidak berubah) ===
   const [images, setImages] = useState([]);
   const [facts, setFacts] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [currentAnimal, setCurrentAnimal] = useState('');
   const [nickname, setNickname] = useState(''); 
-  
-  // State untuk Loading & Error
   const [loadingImages, setLoadingImages] = useState(false);
   const [loadingFacts, setLoadingFacts] = useState(false);
   const [error, setError] = useState(null);
-  
   const [lastFactParams, setLastFactParams] = useState({ count: 5, type: 'cat' });
 
-  // === EFEK (useEffect) ===
+  // === EFEK (Tidak berubah) ===
   useEffect(() => {
     const storedFavorites = localStorage.getItem('animalFavorites');
     if (storedFavorites) {
@@ -53,86 +49,76 @@ function App() {
     localStorage.setItem('animalFavorites', JSON.stringify(favorites));
   }, [favorites]);
 
+  // === FUNGSI API (DENGAN PERBAIKAN 'FINALLY') ===
 
-  // === FUNGSI API (Async/Await) ===
-
-  // Fetch Gambar Anjing (Tidak berubah)
+  // Fetch Gambar Anjing
   const fetchDogImages = async (breed, count) => {
     setLoadingImages(true);
     setError(null);
     let url = '';
-    
     if (breed === 'random') {
       url = `https://dog.ceo/api/breeds/image/random/${count}`;
     } else {
       url = `https://dog.ceo/api/breed/${breed}/images/random/${count}`;
     }
-    
     try {
       const response = await axios.get(url);
       setImages(response.data.message.map(url => ({ id: url, url })));
     } catch (err) {
       setError('Gagal mengambil data gambar anjing.');
       console.error(err);
+    } finally {
+      setLoadingImages(false); // <-- INI YANG PENTING
     }
-    setLoadingImages(false);
   };
 
-  // Fetch Gambar Kucing (Tidak berubah)
+  // Fetch Gambar Kucing
   const fetchCatImages = async (breed, count) => {
     setLoadingImages(true);
     setError(null);
     let url = `https://api.thecatapi.com/v1/images/search?limit=${count}`;
-
     if (breed !== 'random') {
       url += `&breed_ids=${breed}`;
     }
-
     try {
-      const response = await axios.get(url, { 
-        headers: { 'x-api-key': CAT_API_KEY } 
-      });
+      const response = await axios.get(url, { headers: { 'x-api-key': CAT_API_KEY } });
       setImages(response.data);
     } catch (err) {
       setError('Gagal mengambil data gambar kucing. Pastikan API Key valid.');
       console.error(err);
+    } finally {
+      setLoadingImages(false); // <-- INI YANG PENTING
     }
-    setLoadingImages(false);
   };
 
-  // FUNGSI FAKTA ANJING (DI-UPDATE DENGAN DATA PALSU)
+  // FUNGSI FAKTA ANJING (Data palsu)
   const fetchDogFacts = async (count) => {
     setLoadingFacts(true);
     setFacts([]);
-
-    // Kita tidak pakai 'try...catch' atau 'axios' lagi
-    // Kita simulasi loading 0.5 detik agar terlihat realistis
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Ambil data dari daftar MOCK_DOG_FACTS
-    // (Kita acak sedikit agar tombol refresh terlihat berfungsi)
-    const shuffledFacts = MOCK_DOG_FACTS.sort(() => 0.5 - Math.random());
-    const selectedFacts = shuffledFacts.slice(0, count);
-
-    // Transformasi data agar sesuai format tabel
-    const factsData = selectedFacts.map((fact, index) => ({
-      id: `dog-mock-${index}`, // ID unik untuk data palsu
-      fact: fact,
-      length: fact.length // Kita HITUNG panjangnya
-    }));
-
-    setFacts(factsData);
-    setLoadingFacts(false);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi loading
+      const shuffledFacts = MOCK_DOG_FACTS.sort(() => 0.5 - Math.random());
+      const selectedFacts = shuffledFacts.slice(0, count);
+      const factsData = selectedFacts.map((fact, index) => ({
+        id: `dog-mock-${index}`,
+        fact: fact,
+        length: fact.length 
+      }));
+      setFacts(factsData);
+    } catch (err) {
+      setError('Gagal memuat data fakta anjing (mock).');
+      console.error(err);
+    } finally {
+      setLoadingFacts(false); // <-- INI YANG PENTING
+    }
   };
 
-
-  // Fetch Fakta Kucing (Tidak berubah, API ini masih sehat)
+  // Fetch Fakta Kucing (API Asli)
   const fetchCatFacts = async (count) => {
     setLoadingFacts(true);
     setFacts([]);
     try {
       const response = await axios.get(`https://catfact.ninja/facts?limit=${count}`);
-      
       const factsData = response.data.data.map((fact, index) => ({
         id: `cat-${index}-${fact.length}`,
         fact: fact.fact,
@@ -142,33 +128,27 @@ function App() {
     } catch (err) {
       setError('Gagal mengambil data fakta kucing.');
       console.error(err);
+    } finally {
+      setLoadingFacts(false); // <-- INI YANG PENTING
     }
-    setLoadingFacts(false);
   };
 
-  // === HANDLER EVENT === (Tidak berubah)
+  // === HANDLER EVENT (Tidak berubah) ===
 
   const handleSearch = (formData) => {
     const { animalType, breed, imageCount, includeFacts, nickname } = formData;
-    
     setNickname(nickname); 
     setCurrentAnimal(animalType);
     setImages([]); 
     setFacts([]); 
-    setError(null); // Hapus error lama setiap kali pencarian baru
-
+    setError(null); 
     setLastFactParams({ count: imageCount, type: animalType });
-
     if (animalType === 'dog') {
       fetchDogImages(breed, imageCount);
-      if (includeFacts) {
-        fetchDogFacts(imageCount); 
-      }
+      if (includeFacts) fetchDogFacts(imageCount); 
     } else { 
       fetchCatImages(breed, imageCount); 
-      if (includeFacts) {
-        fetchCatFacts(imageCount); 
-      }
+      if (includeFacts) fetchCatFacts(imageCount); 
     }
   };
 
@@ -192,41 +172,49 @@ function App() {
 
   const isFavorite = (imageUrl) => favorites.includes(imageUrl);
   
-  // === RENDER === (Tidak berubah)
-
+  // === RENDER (DENGAN TYPO DIPERBAIKI) ===
   return (
-    <div className="app">
-      <Header />
-      
-      <main className="container">
-        <SearchForm onSearch={handleSearch} loading={loadingImages || loadingFacts} />
+    <Layout style={{ minHeight: '100vh', background: '#f6f7fb' }}>
+      <Header /> 
+      <Content style={{ padding: '24px 48px' }}>
+        <SearchForm 
+          onSearch={handleSearch} 
+          loading={loadingImages || loadingFacts} 
+        />
 
         {error && (
-          <div className="error-message">
-            <strong>Error:</strong> {error}
-          </div>
+          <Alert
+            message="Terjadi Error"
+            description={error}
+            type="error"
+            showIcon
+            style={{ margin: '16px 0' }}
+          />
         )}
 
         {nickname && !loadingImages && !error && (
-          <h3 className="greeting">Hai {nickname}, ini dia hasil untukmu!</h3>
+          <Title level={3} style={{ textAlign: 'center', margin: '24px 0', color: '#5A4BFF' }}>
+            Hai {nickname}, ini dia hasil untukmu!
+          </Title>
         )}
 
         {/* Galeri Gambar */}
-        <h2>Galeri Gambar</h2>
-        {loadingImages ? (
-          <p className="loading-text">Memuat gambar...</p>
-        ) : (
-          <div className="gallery-grid">
+        <Title level={2} style={{ borderBottom: '2px solid #7A6AFF', paddingBottom: '8px' }}>
+          Galeri Gambar
+        </Title> {/* <-- TYPO 'SignatureTitle' DIPERBAIKI */}
+        <Spin spinning={loadingImages} tip="Memuat gambar...">
+          <Row gutter={[24, 24]} style={{ marginTop: '24px' }}>
             {images.map(image => (
-              <DetailCard
-                key={image.id}
-                imageUrl={image.url}
-                onFavorite={handleFavorite}
-                isFavorite={isFavorite(image.url)}
-              />
+              <Col key={image.id} xs={24} sm={12} md={8} lg={6}>
+                <DetailCard
+                  imageUrl={image.url}
+                  onFavorite={handleFavorite}
+                  isFavorite={isFavorite(image.url)}
+                />
+              </Col>
             ))}
-          </div>
-        )}
+          </Row>
+        </Spin>
 
         {/* Tabel Fakta */}
         {(facts.length > 0 || loadingFacts) && (
@@ -240,19 +228,23 @@ function App() {
         
         {/* Galeri Favorit */}
         {favorites.length > 0 && (
-          <section className="favorites-section">
-            <h2>⭐ Favorit Anda</h2>
-            <div className="favorites-grid">
+          <section style={{ marginTop: '3rem' }}>
+            <Title level={2} style={{ borderBottom: '2px solid #7A6AFF', paddingBottom: '8px' }}>
+              ⭐ Favorit Anda
+            </Title> {/* <-- TYPO 'SignatureTitle' DIPERBAIKI */}
+            <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
               {favorites.map(url => (
-                <div key={url} className="card">
-                   <img src={url} alt="Favorite" />
-                </div>
+                <Col key={url} xs={12} sm={8} md={6} lg={4}>
+                  <Card
+                    cover={<img alt="Favorite" src={url} style={{ height: '150px', objectFit: 'cover' }} />}
+                  />
+                </Col>
               ))}
-            </div>
+            </Row>
           </section>
         )}
-      </main>
-    </div>
+      </Content>
+    </Layout>
   );
 }
 

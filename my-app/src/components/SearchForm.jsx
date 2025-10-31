@@ -1,181 +1,129 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Form, Row, Col, Radio, Select, InputNumber, Input, Checkbox, Button } from 'antd';
 
-// Props: onSearch (function), loading (bool)
+const { Option } = Select;
+
 const SearchForm = ({ onSearch, loading }) => {
-  // Ganti userEmail menjadi nickname
-  const [formData, setFormData] = useState({
-    animalType: 'dog',
-    breed: 'random',
-    imageCount: 5,
-    nickname: '', // GANTI DARI userEmail
-    includeFacts: true,
-  });
+  const [form] = Form.useForm();
+  const [animalType, setAnimalType] = useState('dog');
 
   // State untuk list breed
   const [dogBreeds, setDogBreeds] = useState([]);
-  const [catBreeds, setCatBreeds] = useState([]); // TAMBAHAN
+  const [catBreeds, setCatBreeds] = useState([]);
   const [loadingBreeds, setLoadingBreeds] = useState(false);
 
-  // useEffect sekarang fetch SEMUA breed
+  // Fetch breed list
   useEffect(() => {
     const fetchAllBreeds = async () => {
       setLoadingBreeds(true);
       try {
-        // 1. Fetch Dog Breeds
         const dogRes = await axios.get('https://dog.ceo/api/breeds/list/all');
-        const breedsArray = Object.keys(dogRes.data.message);
-        setDogBreeds(breedsArray);
-
-        // 2. Fetch Cat Breeds (dari TheCatAPI)
+        setDogBreeds(Object.keys(dogRes.data.message));
+        
         const catRes = await axios.get('https://api.thecatapi.com/v1/breeds');
-        // Format: [{ id: "abys", name: "Abyssinian" }, ...]
         setCatBreeds(catRes.data);
-
       } catch (error) {
         console.error("Failed to fetch breeds:", error);
       }
       setLoadingBreeds(false);
     };
     fetchAllBreeds();
-  }, []); // Dependency array kosong, hanya jalan sekali
+  }, []);
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSearch(formData);
+  // Handle form submission
+  const handleSubmit = (values) => {
+    onSearch(values);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="search-form">
-      <div className="form-grid">
-        
-        <fieldset>
-          <legend>1. Pilih Hewan:</legend>
-          <div className="radio-group">
-            <label>
-              <input
-                type="radio"
-                name="animalType"
-                value="dog"
-                checked={formData.animalType === 'dog'}
-                onChange={handleChange}
-              />
-              Anjing (Dog)
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="animalType"
-                value="cat"
-                checked={formData.animalType === 'cat'}
-                onChange={handleChange}
-              />
-              Kucing (Cat)
-            </label>
-          </div>
-        </fieldset>
+    <Form
+      form={form}
+      layout="vertical"
+      onFinish={handleSubmit}
+      initialValues={{
+        animalType: 'dog',
+        breed: 'random',
+        imageCount: 5,
+        includeFacts: true,
+      }}
+      style={{ 
+        background: '#ffffff', 
+        padding: '24px', 
+        borderRadius: '12px', 
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)' 
+      }}
+    >
+      <Row gutter={24}>
+        {/* Kolom 1: Tipe Hewan & Breed */}
+        <Col xs={24} md={8}>
+          <Form.Item
+            name="animalType"
+            label="1. Pilih Hewan:"
+          >
+            <Radio.Group onChange={(e) => setAnimalType(e.target.value)}>
+              <Radio.Button value="dog">Anjing (Dog)</Radio.Button>
+              <Radio.Button value="cat">Kucing (Cat)</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
 
-        {/* --- KONDISIONAL DROPDOWN BREED --- */}
-        {/* Dropdown Anjing */}
-        {formData.animalType === 'dog' && (
-          <div>
-            <label htmlFor="breed">2. Pilih Breed Anjing:</label>
-            <select
-              id="breed"
-              name="breed"
-              value={formData.breed}
-              onChange={handleChange}
-              disabled={loadingBreeds}
+          <Form.Item
+            name="breed"
+            label="2. Pilih Breed:"
+          >
+            <Select
+              showSearch
+              loading={loadingBreeds}
+              placeholder="Pilih breed"
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
             >
-              <option value="random">Random (Acak)</option>
-              {dogBreeds.map(breed => (
-                <option key={breed} value={breed}>{breed}</option>
+              <Option value="random" label="Random (Acak)">Random (Acak)</Option>
+              {animalType === 'dog' && dogBreeds.map(breed => (
+                <Option key={breed} value={breed} label={breed}>{breed}</Option>
               ))}
-            </select>
-          </div>
-        )}
-
-        {/* Dropdown Kucing (BARU) */}
-        {formData.animalType === 'cat' && (
-          <div>
-            <label htmlFor="breed">2. Pilih Breed Kucing:</label>
-            <select
-              id="breed"
-              name="breed"
-              value={formData.breed}
-              onChange={handleChange}
-              disabled={loadingBreeds}
-            >
-              <option value="random">Random (Acak)</option>
-              {catBreeds.map(breed => (
-                // Value-nya adalah breed 'id' (cth: "abys")
-                <option key={breed.id} value={breed.id}>{breed.name}</option>
+              {animalType === 'cat' && catBreeds.map(breed => (
+                <Option key={breed.id} value={breed.id} label={breed.name}>{breed.name}</Option>
               ))}
-            </select>
-          </div>
-        )}
-        {/* --- AKHIR KONDISIONAL --- */}
+            </Select>
+          </Form.Item>
+        </Col>
 
-
-        <div>
-          <label htmlFor="imageCount">3. Jumlah Gambar:</label>
-          <input
-            type="number"
-            id="imageCount"
+        {/* Kolom 2: Jumlah & Nama */}
+        <Col xs={24} md={8}>
+          <Form.Item
             name="imageCount"
-            value={formData.imageCount}
-            onChange={handleChange}
-            min="1"
-            max="20"
-            required
-          />
-        </div>
+            label="3. Jumlah Gambar:"
+            rules={[{ required: true, message: 'Harap isi jumlah!' }]}
+          >
+            <InputNumber min={1} max={20} style={{ width: '100%' }} />
+          </Form.Item>
 
-        {/* Input Email DIGANTI Nama Panggilan */}
-        <div>
-          <label htmlFor="nickname">4. Nama Panggilan Anda:</label>
-          <input
-            type="text"
-            id="nickname"
+          <Form.Item
             name="nickname"
-            value={formData.nickname}
-            onChange={handleChange}
-            placeholder="Mimi"
-            required // Validasi HTML5
-          />
-        </div>
+            label="4. Nama Panggilan Anda:"
+            rules={[{ required: true, message: 'Harap isi nama panggilan!' }]}
+          >
+            <Input placeholder="Mimi" />
+          </Form.Item>
+        </Col>
 
-        {/* Checkbox Fakta (dibuat simetris/selalu tampil) */}
-        <div>
-          <label htmlFor="includeFacts">
-            <input
-              type="checkbox"
-              id="includeFacts"
-              name="includeFacts"
-              checked={formData.includeFacts}
-              onChange={handleChange}
-            />
-            5. Tampilkan Fakta Hewan?
-          </label>
-        </div>
+        {/* Kolom 3: Checkbox & Tombol */}
+        <Col xs={24} md={8}>
+          <Form.Item name="includeFacts" valuePropName="checked" label="5. Tampilkan Fakta?">
+            <Checkbox>Tampilkan Fakta Hewan?</Checkbox>
+          </Form.Item>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="submit-button"
-        >
-          {loading ? 'Sedang Mencari...' : 'Tampilkan Galeri'}
-        </button>
-      </div>
-    </form>
+          <Form.Item label=" ">
+            <Button type="primary" htmlType="submit" loading={loading} block style={{ background: '#7A6AFF' }}>
+              Tampilkan Galeri
+            </Button>
+          </Form.Item>
+        </Col>
+      </Row>
+    </Form>
   );
 };
 
