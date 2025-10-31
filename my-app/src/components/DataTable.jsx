@@ -1,12 +1,16 @@
 import React from 'react';
 
-const DataTable = ({ facts, onRefresh, loading }) => {
+// Props: facts (array), onRefresh (function), loading (bool), animalType (string)
+const DataTable = ({ facts, onRefresh, loading, animalType }) => {
   if (facts.length === 0 && !loading) return null;
 
+  // Judul dinamis
+  const title = animalType === 'dog' ? 'Fakta Anjing' : 'Fakta Kucing';
+
   return (
-    <div className="table-container">
+    <div className="table-container" style={{ marginTop: '2rem' }}>
       <div className="table-header">
-        <h2>Fakta Kucing</h2>
+        <h2>{title}</h2>
         <button
           onClick={onRefresh}
           disabled={loading}
@@ -24,16 +28,18 @@ const DataTable = ({ facts, onRefresh, loading }) => {
             <thead>
               <tr>
                 <th style={{ width: '5%' }}>No.</th>
-                <th>Fakta</th>
-                <th style={{ width: '20%' }}>Panjang (Karakter)</th>
+                <th>Fakta (Bahasa Inggris)</th>
+                {/* Kolom "Panjang" DIGANTI "Jenis" */}
+                <th style={{ width: '20%' }}>Jenis</th>
               </tr>
             </thead>
             <tbody>
               {facts.map((fact, index) => (
-                <tr key={fact.fact_id || index}>
+                <tr key={fact.id}>
                   <td>{index + 1}</td>
                   <td>{fact.fact}</td>
-                  <td>{fact.length}</td>
+                  {/* Data "fact.length" DIGANTI "fact.type" */}
+                  <td>{fact.type}</td>
                 </tr>
               ))}
             </tbody>
