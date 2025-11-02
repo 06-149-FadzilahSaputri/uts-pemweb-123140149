@@ -42,7 +42,7 @@ const DataTable = ({ facts, onRefresh, loading, animalType }) => {
   ];
 
   
-  const title = animalType === 'dog' ? 'Fakta Anjing Luar Biasa' : 'Fakta Kucing Luar Biasa';
+  const title = animalType === 'dog' ? 'Fakta Anjing' : 'Fakta Kucing';
 
   return (
     <div style={{ 
