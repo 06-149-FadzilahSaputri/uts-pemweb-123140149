@@ -51,12 +51,13 @@ const SearchForm = ({ onSearch, loading }) => {
       <Form.Item
         name="animalType"
         label="Tipe Peliharaan"
+        htmlFor="animalType_dog"
       >
         <Radio.Group 
           onChange={(e) => setAnimalType(e.target.value)} 
           buttonStyle="solid"
         >
-          <Radio.Button value="dog">Anjing</Radio.Button>
+          <Radio.Button value="dog" id="animalType_dog">Anjing</Radio.Button>
           <Radio.Button value="cat">Kucing</Radio.Button>
         </Radio.Group>
       </Form.Item>
@@ -64,8 +65,10 @@ const SearchForm = ({ onSearch, loading }) => {
       <Form.Item
         name="breed"
         label="Ras"
+        htmlFor="breed_input"
       >
         <Select
+          id="breed_input"
           showSearch
           loading={loadingBreeds}
           placeholder="Pilih ras"
@@ -87,20 +90,22 @@ const SearchForm = ({ onSearch, loading }) => {
       <Form.Item
         name="nickname"
         label="Nama Panggilan Anda"
+        htmlFor="nickname_input"
         rules={[{ required: true, message: 'Harap isi nama panggilan!' }]}
       >
-        <Input placeholder="Contoh: Zila" />
+        <Input id="nickname_input" placeholder="Contoh: Zila" />
       </Form.Item>
 
       <Form.Item
         name="imageCount"
         label="Jumlah Gambar & Fakta"
+        htmlFor="imageCount_input"
         rules={[{ required: true, message: 'Harap isi jumlah!' }]}
       >
-        <InputNumber min={1} max={20} style={{ width: '100%' }} />
+        <InputNumber id="imageCount_input" min={1} max={20} style={{ width: '100%' }} />
       </Form.Item>
 
-      <Form.Item name="includeFacts" valuePropName="checked">
+      <Form.Item name="includeFacts" valuePropName="checked" htmlFor="includeFacts_input">
         <Checkbox>Tampilkan Tabel Fakta</Checkbox>
       </Form.Item>
 
