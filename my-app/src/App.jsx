@@ -190,20 +190,23 @@ function App() {
           width={350} 
           style={{ 
             background: '#f6f7fb', 
-            padding: '24px',
             borderRight: '1px solid #f0f0f0'
           }}
+          breakpoint="lg"
+          collapsedWidth="0"
         >
-          <Card style={{ borderRadius: '12px' }}>
-            <Title level={4}>Let's Find Your Pet!</Title>
-            <SearchForm 
-              onSearch={handleSearch} 
-              loading={loadingImages || loadingFacts} 
-            />
-          </Card>
+          <div style={{ padding: '24px' }}>
+            <Card style={{ borderRadius: '12px' }}>
+              <Title level={4}>Let's Find Your Pet!</Title>
+              <SearchForm 
+                onSearch={handleSearch} 
+                loading={loadingImages || loadingFacts} 
+              />
+            </Card>
+          </div>
         </Sider>
         
-        <Content style={{ padding: '24px 48px' }}>
+        <Content style={{ padding: '24px 48px' }} className="main-content">
           
           {error && (
             <Alert

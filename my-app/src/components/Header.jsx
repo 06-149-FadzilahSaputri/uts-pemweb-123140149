@@ -13,22 +13,25 @@ const AppHeader = ({ onFavoritesClick }) => {
       alignItems: 'center', 
       justifyContent: 'space-between', 
       background: '#fff', 
-      borderBottom: '1px solid #f0f0f0' 
+      borderBottom: '1px solid #f0f0f0',
+      paddingInline: '24px' // Tambahkan padding agar tidak mepet di mobile
     }}>
       
       <Title level={3} style={{ color: '#fa8c16', margin: 0, display: 'flex', alignItems: 'center' }}>
   
-  <img 
-    src={logoPaw} 
-    alt="Logo Jejak Hewan" 
-    style={{ 
-      marginRight: '10px', 
-      height: '30px', 
-      width: '30px'   
-    }} 
-  />
-  Galeri Fakta Hewan
-</Title>
+        <img 
+          src={logoPaw} 
+          alt="Logo Jejak Hewan" 
+          style={{ 
+            marginRight: '10px', 
+            height: '30px', 
+            width: '30px'   
+          }} 
+        />
+        {/* --- PERUBAHAN DI SINI --- */}
+        Galeri Fakta Hewan
+        {/* --- AKHIR PERUBAHAN --- */}
+      </Title>
       
       
       <Button 

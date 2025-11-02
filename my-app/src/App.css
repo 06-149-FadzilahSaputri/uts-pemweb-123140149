@@ -31,7 +31,14 @@
   border-color: #fa8c16 !important; 
   
   
-  box-shadow: 0 0 0 2px rgba(250, 140, 22, 0.2) !important; 
+  box-shadow: 0 0 0 2px rgba(255, 197, 6, 0.2) !important; 
   
   outline: 0; 
+}
+
+
+@media (max-width: 991px) {
+  .main-content {
+    padding: 16px !important; 
+  }
 }
