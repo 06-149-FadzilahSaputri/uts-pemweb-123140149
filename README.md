@@ -12,7 +12,7 @@ Ini adalah proyek aplikasi web galeri hewan (Anjing & Kucing) yang dibuat untuk 
 
 ## 📸 Screenshot
 
-*(Sangat penting untuk Kriteria Penilaian!)*
+
 
 **Tampilan Desktop:**
 ![Tampilan Desktop Aplikasi](link-ke-screenshot-desktop.png)
