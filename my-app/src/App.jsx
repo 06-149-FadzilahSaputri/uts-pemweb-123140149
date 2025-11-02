@@ -10,11 +10,9 @@ import './App.css';
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
 
-// Mengambil API Key dari .env
 const CAT_API_KEY = import.meta.env.VITE_CAT_API_KEY;
 
 
-// --- DATA ANJING PALSU (MOCK DATA) ---
 const MOCK_DOG_FACTS = [
   "Indra penciuman seekor anjing 10.000 kali lebih kuat dari manusia.",
   "Basenji adalah satu-satunya ras anjing yang tidak bisa menggonggong.",
@@ -23,10 +21,8 @@ const MOCK_DOG_FACTS = [
   "Lagu The Beatles 'A Day in the Life' memiliki frekuensi yang hanya bisa didengar anjing.",
   "Tiga anjing selamat dari tenggelamnya kapal Titanic."
 ];
-// ------------------------------------
 
 function App() {
-  // === STATE (Tidak berubah) ===
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [images, setImages] = useState([]);
   const [facts, setFacts] = useState([]);
@@ -38,7 +34,6 @@ function App() {
   const [error, setError] = useState(null);
   const [lastFactParams, setLastFactParams] = useState({ count: 5, type: 'cat' });
 
-  // === EFEK (Tidak berubah) ===
   useEffect(() => {
     const storedFavorites = localStorage.getItem('animalFavorites');
     if (storedFavorites) {
@@ -50,9 +45,7 @@ function App() {
     localStorage.setItem('animalFavorites', JSON.stringify(favorites));
   }, [favorites]);
 
-  // === FUNGSI API ===
 
-  // Fetch Gambar Anjing (Tidak berubah)
   const fetchDogImages = async (breed, count) => {
     setLoadingImages(true);
     setError(null);
@@ -73,7 +66,6 @@ function App() {
     }
   };
 
-  // Fetch Gambar Kucing (Tidak berubah)
   const fetchCatImages = async (breed, count) => {
     setLoadingImages(true);
     setError(null);
@@ -98,7 +90,6 @@ function App() {
     }
   };
 
-  // FUNGSI FAKTA ANJING (Data palsu - Tidak berubah)
   const fetchDogFacts = async (count) => {
     setLoadingFacts(true);
     setFacts([]);
@@ -120,17 +111,12 @@ function App() {
     }
   };
 
-  // Fetch Fakta Kucing (DENGAN PERBAIKAN)
   const fetchCatFacts = async (count) => {
     setLoadingFacts(true);
     setFacts([]);
     try {
-      // --- PERBAIKAN DI SINI ---
-      // Buat "cache buster" unik menggunakan waktu saat ini
       const cacheBuster = `&_=${new Date().getTime()}`;
-      // Tambahkan cacheBuster ke URL
       const response = await axios.get(`https://catfact.ninja/facts?limit=${count}${cacheBuster}`);
-      // --- AKHIR PERBAIKAN ---
 
       const factsData = response.data.data.map((fact, index) => ({
         id: `cat-${index}-${fact.length}`,
@@ -146,7 +132,6 @@ function App() {
     }
   };
 
-  // === HANDLER EVENT (Tidak berubah) ===
   const handleSearch = (formData) => {
     const { animalType, breed, imageCount, includeFacts, nickname } = formData;
     setNickname(nickname); 
@@ -184,13 +169,11 @@ function App() {
 
   const isFavorite = (imageUrl) => favorites.includes(imageUrl);
   
-  // === RENDER (Tidak berubah) ===
   return (
     <Layout style={{ minHeight: '100vh', background: '#f6f7fb' }}>
       <AppHeader onFavoritesClick={() => setDrawerOpen(true)} />
       
       <Layout>
-        {/* Kolom Kiri: Sider (Control Panel) */}
         <Sider 
           width={350} 
           style={{ 
@@ -208,7 +191,6 @@ function App() {
           </Card>
         </Sider>
         
-        {/* Kolom Kanan: Content (Gallery & Facts) */}
         <Content style={{ padding: '24px 48px' }}>
           
           {error && (
@@ -227,7 +209,6 @@ function App() {
             </Title>
           )}
 
-          {/* Galeri Gambar */}
           <Title level={2} style={{ borderBottom: '2px solid #fa8c16', paddingBottom: '8px' }}>
             Galeri Hewan
           </Title>
@@ -245,7 +226,6 @@ function App() {
             </Row>
           </Spin>
 
-          {/* Tabel Fakta */}
           {(facts.length > 0 || loadingFacts) && (
             <DataTable
               facts={facts}
@@ -257,9 +237,8 @@ function App() {
         </Content>
       </Layout>
       
-      {/* Drawer untuk Favorites (Teks diterjemahkan) */}
       <Drawer
-        title="⭐ Favorit Anda"
+        title="Favorit Anda"
         placement="right"
         onClose={() => setDrawerOpen(false)}
         open={drawerOpen}

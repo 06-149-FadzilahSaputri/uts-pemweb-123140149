@@ -8,12 +8,12 @@ const SearchForm = ({ onSearch, loading }) => {
   const [form] = Form.useForm();
   const [animalType, setAnimalType] = useState('dog');
 
-  // State untuk list breed
+
   const [dogBreeds, setDogBreeds] = useState([]);
   const [catBreeds, setCatBreeds] = useState([]);
   const [loadingBreeds, setLoadingBreeds] = useState(false);
 
-  // Fetch breed list
+  
   useEffect(() => {
     const fetchAllBreeds = async () => {
       setLoadingBreeds(true);
@@ -31,7 +31,7 @@ const SearchForm = ({ onSearch, loading }) => {
     fetchAllBreeds();
   }, []);
 
-  // Handle form submission
+  
   const handleSubmit = (values) => {
     onSearch(values);
   };

@@ -15,22 +15,22 @@ const AppHeader = ({ onFavoritesClick }) => {
       background: '#fff', 
       borderBottom: '1px solid #f0f0f0' 
     }}>
-      {/* Logo di Kiri */}
+      
       <Title level={3} style={{ color: '#fa8c16', margin: 0, display: 'flex', alignItems: 'center' }}>
-  {/* Gunakan 'logoPaw' yang sudah Anda impor */}
+  
   <img 
     src={logoPaw} 
     alt="Logo Jejak Hewan" 
     style={{ 
       marginRight: '10px', 
-      height: '30px', /* Anda bisa sesuaikan ukurannya */
-      width: '30px'   /* Sesuaikan agar proporsional */
+      height: '30px', 
+      width: '30px'   
     }} 
   />
   Galeri Fakta Hewan
 </Title>
       
-      {/* Tombol di Kanan */}
+      
       <Button 
         type="primary" 
         icon={<StarOutlined />}
