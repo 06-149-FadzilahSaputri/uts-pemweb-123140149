@@ -19,6 +19,18 @@ const MOCK_DOG_FACTS = [
   "Anjing Dalmatian terlahir putih bersih, tanpa bintik.",
   "Cetakan hidung anjing bersifat unik, mirip sidik jari manusia.",
   "Lagu The Beatles 'A Day in the Life' memiliki frekuensi yang hanya bisa didengar anjing.",
+  "Suhu tubuh normal anjing lebih tinggi dari manusia, biasanya berkisar antara 38°C hingga 39,2°C (101°F hingga 102.5°F)",
+  "Greyhound adalah anjing tercepat di dunia dan dapat berlari dengan kecepatan mencapai 72 km/jam (45 mph) dalam waktu singkat",
+  "Anjing memiliki kelopak mata ketiga (disebut nictitating membrane) yang membantu menjaga mata mereka tetap lembap dan terlindungi dari kotoran",
+  "Anjing tidak buta warna total; mereka melihat dunia dalam spektrum warna biru dan kuning, tetapi kesulitan membedakan antara merah dan hijau",
+  "Anjing memiliki kelenjar keringat di antara bantalan kakinya, tetapi cara utama mereka mendinginkan diri adalah melalui terengah-engah (panting).",
+  "Ras anjing Saluki diyakini sebagai salah satu ras tertua, dengan gambaran mereka muncul di makam Mesir kuno yang berasal dari tahun 2100 SM.",
+  "Tidak semua anjing bisa berenang secara alami; ras seperti Basset Hound dan Bulldog seringkali kesulitan berenang karena struktur tubuhnya.",
+  "Anak anjing dilahirkan dalam keadaan buta dan tuli; mereka baru mulai membuka mata dan mendengar pada usia sekitar dua minggu.",
+  "Anjing tidak suka dipeluk erat; banyak anjing menganggap pelukan erat sebagai tanda dominasi atau ancaman, bukan kasih sayang.",
+  "Cokelat beracun bagi anjing karena mengandung zat theobromine, yang tidak dapat mereka metabolisme seperti halnya manusia.",
+  "Saat anjing menguap, itu tidak selalu berarti mereka lelah; menguap juga bisa menjadi tanda bahwa mereka sedang merasa cemas atau stres.",
+  "Penelitian menunjukkan bahwa anjing dapat merasakan kecemburuan, terutama ketika pemiliknya memberikan perhatian kepada anjing lain atau bahkan benda mati.",
   "Tiga anjing selamat dari tenggelamnya kapal Titanic."
 ];
 
