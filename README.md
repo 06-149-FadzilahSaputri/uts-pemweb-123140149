@@ -74,4 +74,4 @@ Selama pengembangan, API publik untuk fakta anjing (dog-api.kinduff.com dan dog-
 Saat meminta gambar kucing berdasarkan ras tertentu, TheCatAPI mungkin mengembalikan jumlah gambar yang berbeda (biasanya lebih sedikit) dari yang diminta. Ini adalah keterbatasan dari API itu sendiri yang databasenya mungkin terbatas untuk ras spesifik tersebut.
 
 3. Blokir Sementara API (Error 429)
-API fakta kucing (catfact.ninja) menerapkan rate limiting (pembatasan permintaan). Jika Anda terlalu sering mengklik tombol "Refresh Fakta" dalam waktu singkat, Anda akan melihat pesan Error 429 (Too Many Requests). Ini adalah perilaku yang normal. Solusinya adalah menunggu 5-10 menit hingga API membuka blokir sementara tersebut, dan fakta akan muncul kembali.
+API fakta kucing (catfact.ninja) menerapkan rate limiting (pembatasan permintaan). Jika terlalu sering mengklik tombol "Refresh Fakta" dalam waktu singkat, nantinya akan melihat pesan Error 429 (Too Many Requests). Ini adalah perilaku yang normal. Solusinya adalah menunggu 5-10 menit hingga API membuka blokir sementara tersebut, dan fakta akan muncul kembali.
