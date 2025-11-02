@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// Impor SEMUA komponen Ant Design di satu tempat
-import { Layout, Row, Col, Spin, Alert, Typography, Card } from 'antd'; 
-import Header from './components/Header.jsx';
+import { Layout, Row, Col, Spin, Alert, Typography, Card, Drawer, Space } from 'antd'; 
+import AppHeader from './components/Header.jsx';
 import SearchForm from './components/SearchForm.jsx';
 import DetailCard from './components/DetailCard.jsx';
 import DataTable from './components/DataTable.jsx';
+import './App.css';
 
-const { Content } = Layout;
-const { Title } = Typography;
+const { Content, Sider } = Layout;
+const { Title, Text } = Typography;
 
-// Mengambil API Key dari .env (Sudah benar posisinya)
+// Mengambil API Key dari .env
 const CAT_API_KEY = import.meta.env.VITE_CAT_API_KEY;
 
 
@@ -27,6 +27,7 @@ const MOCK_DOG_FACTS = [
 
 function App() {
   // === STATE (Tidak berubah) ===
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [images, setImages] = useState([]);
   const [facts, setFacts] = useState([]);
   const [favorites, setFavorites] = useState([]);
@@ -49,9 +50,9 @@ function App() {
     localStorage.setItem('animalFavorites', JSON.stringify(favorites));
   }, [favorites]);
 
-  // === FUNGSI API (DENGAN PERBAIKAN 'FINALLY') ===
+  // === FUNGSI API ===
 
-  // Fetch Gambar Anjing
+  // Fetch Gambar Anjing (Tidak berubah)
   const fetchDogImages = async (breed, count) => {
     setLoadingImages(true);
     setError(null);
@@ -68,11 +69,11 @@ function App() {
       setError('Gagal mengambil data gambar anjing.');
       console.error(err);
     } finally {
-      setLoadingImages(false); // <-- INI YANG PENTING
+      setLoadingImages(false);
     }
   };
 
-  // Fetch Gambar Kucing
+  // Fetch Gambar Kucing (Tidak berubah)
   const fetchCatImages = async (breed, count) => {
     setLoadingImages(true);
     setError(null);
@@ -82,21 +83,27 @@ function App() {
     }
     try {
       const response = await axios.get(url, { headers: { 'x-api-key': CAT_API_KEY } });
-      setImages(response.data);
+      
+      let finalImages = response.data;
+      if (breed !== 'random' && finalImages.length > count) {
+        finalImages = finalImages.slice(0, count);
+      }
+      setImages(finalImages); 
+
     } catch (err) {
       setError('Gagal mengambil data gambar kucing. Pastikan API Key valid.');
       console.error(err);
     } finally {
-      setLoadingImages(false); // <-- INI YANG PENTING
+      setLoadingImages(false);
     }
   };
 
-  // FUNGSI FAKTA ANJING (Data palsu)
+  // FUNGSI FAKTA ANJING (Data palsu - Tidak berubah)
   const fetchDogFacts = async (count) => {
     setLoadingFacts(true);
     setFacts([]);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulasi loading
+      await new Promise(resolve => setTimeout(resolve, 500));
       const shuffledFacts = MOCK_DOG_FACTS.sort(() => 0.5 - Math.random());
       const selectedFacts = shuffledFacts.slice(0, count);
       const factsData = selectedFacts.map((fact, index) => ({
@@ -109,16 +116,22 @@ function App() {
       setError('Gagal memuat data fakta anjing (mock).');
       console.error(err);
     } finally {
-      setLoadingFacts(false); // <-- INI YANG PENTING
+      setLoadingFacts(false);
     }
   };
 
-  // Fetch Fakta Kucing (API Asli)
+  // Fetch Fakta Kucing (DENGAN PERBAIKAN)
   const fetchCatFacts = async (count) => {
     setLoadingFacts(true);
     setFacts([]);
     try {
-      const response = await axios.get(`https://catfact.ninja/facts?limit=${count}`);
+      // --- PERBAIKAN DI SINI ---
+      // Buat "cache buster" unik menggunakan waktu saat ini
+      const cacheBuster = `&_=${new Date().getTime()}`;
+      // Tambahkan cacheBuster ke URL
+      const response = await axios.get(`https://catfact.ninja/facts?limit=${count}${cacheBuster}`);
+      // --- AKHIR PERBAIKAN ---
+
       const factsData = response.data.data.map((fact, index) => ({
         id: `cat-${index}-${fact.length}`,
         fact: fact.fact,
@@ -129,12 +142,11 @@ function App() {
       setError('Gagal mengambil data fakta kucing.');
       console.error(err);
     } finally {
-      setLoadingFacts(false); // <-- INI YANG PENTING
+      setLoadingFacts(false);
     }
   };
 
   // === HANDLER EVENT (Tidak berubah) ===
-
   const handleSearch = (formData) => {
     const { animalType, breed, imageCount, includeFacts, nickname } = formData;
     setNickname(nickname); 
@@ -172,78 +184,99 @@ function App() {
 
   const isFavorite = (imageUrl) => favorites.includes(imageUrl);
   
-  // === RENDER (DENGAN TYPO DIPERBAIKI) ===
+  // === RENDER (Tidak berubah) ===
   return (
     <Layout style={{ minHeight: '100vh', background: '#f6f7fb' }}>
-      <Header /> 
-      <Content style={{ padding: '24px 48px' }}>
-        <SearchForm 
-          onSearch={handleSearch} 
-          loading={loadingImages || loadingFacts} 
-        />
-
-        {error && (
-          <Alert
-            message="Terjadi Error"
-            description={error}
-            type="error"
-            showIcon
-            style={{ margin: '16px 0' }}
-          />
-        )}
-
-        {nickname && !loadingImages && !error && (
-          <Title level={3} style={{ textAlign: 'center', margin: '24px 0', color: '#5A4BFF' }}>
-            Hai {nickname}, ini dia hasil untukmu!
-          </Title>
-        )}
-
-        {/* Galeri Gambar */}
-        <Title level={2} style={{ borderBottom: '2px solid #7A6AFF', paddingBottom: '8px' }}>
-          Galeri Gambar
-        </Title> {/* <-- TYPO 'SignatureTitle' DIPERBAIKI */}
-        <Spin spinning={loadingImages} tip="Memuat gambar...">
-          <Row gutter={[24, 24]} style={{ marginTop: '24px' }}>
-            {images.map(image => (
-              <Col key={image.id} xs={24} sm={12} md={8} lg={6}>
-                <DetailCard
-                  imageUrl={image.url}
-                  onFavorite={handleFavorite}
-                  isFavorite={isFavorite(image.url)}
-                />
-              </Col>
-            ))}
-          </Row>
-        </Spin>
-
-        {/* Tabel Fakta */}
-        {(facts.length > 0 || loadingFacts) && (
-          <DataTable
-            facts={facts}
-            onRefresh={handleRefreshFacts}
-            loading={loadingFacts}
-            animalType={currentAnimal} 
-          />
-        )}
+      <AppHeader onFavoritesClick={() => setDrawerOpen(true)} />
+      
+      <Layout>
+        {/* Kolom Kiri: Sider (Control Panel) */}
+        <Sider 
+          width={350} 
+          style={{ 
+            background: '#f6f7fb', 
+            padding: '24px',
+            borderRight: '1px solid #f0f0f0'
+          }}
+        >
+          <Card style={{ borderRadius: '12px' }}>
+            <Title level={4}>Let's Find Your Pet!</Title>
+            <SearchForm 
+              onSearch={handleSearch} 
+              loading={loadingImages || loadingFacts} 
+            />
+          </Card>
+        </Sider>
         
-        {/* Galeri Favorit */}
-        {favorites.length > 0 && (
-          <section style={{ marginTop: '3rem' }}>
-            <Title level={2} style={{ borderBottom: '2px solid #7A6AFF', paddingBottom: '8px' }}>
-              ⭐ Favorit Anda
-            </Title> {/* <-- TYPO 'SignatureTitle' DIPERBAIKI */}
-            <Row gutter={[16, 16]} style={{ marginTop: '24px' }}>
-              {favorites.map(url => (
-                <Col key={url} xs={12} sm={8} md={6} lg={4}>
-                  <Card
-                    cover={<img alt="Favorite" src={url} style={{ height: '150px', objectFit: 'cover' }} />}
+        {/* Kolom Kanan: Content (Gallery & Facts) */}
+        <Content style={{ padding: '24px 48px' }}>
+          
+          {error && (
+            <Alert
+              message="Terjadi Error"
+              description={error}
+              type="error"
+              showIcon
+              style={{ margin: '16px 0' }}
+            />
+          )}
+
+          {nickname && !loadingImages && !error && (
+            <Title level={3} style={{ textAlign: 'center', margin: '24px 0', color: '#fa8c16' }}>
+              Hai {nickname}, ini dia hasil untukmu!
+            </Title>
+          )}
+
+          {/* Galeri Gambar */}
+          <Title level={2} style={{ borderBottom: '2px solid #fa8c16', paddingBottom: '8px' }}>
+            Galeri Hewan
+          </Title>
+          <Spin spinning={loadingImages} tip="Memuat gambar...">
+            <Row gutter={[24, 24]} style={{ marginTop: '24px' }}>
+              {images.map(image => (
+                <Col key={image.id} xs={24} sm={12} md={8} lg={8}>
+                  <DetailCard
+                    imageUrl={image.url}
+                    onFavorite={handleFavorite}
+                    isFavorite={isFavorite(image.url)}
                   />
                 </Col>
               ))}
             </Row>
-          </section>
-        )}
-      </Content>
+          </Spin>
+
+          {/* Tabel Fakta */}
+          {(facts.length > 0 || loadingFacts) && (
+            <DataTable
+              facts={facts}
+              onRefresh={handleRefreshFacts}
+              loading={loadingFacts}
+              animalType={currentAnimal} 
+            />
+          )}
+        </Content>
+      </Layout>
+      
+      {/* Drawer untuk Favorites (Teks diterjemahkan) */}
+      <Drawer
+        title="⭐ Favorit Anda"
+        placement="right"
+        onClose={() => setDrawerOpen(false)}
+        open={drawerOpen}
+      >
+        <Space direction="vertical" style={{ width: '100%' }}>
+          {favorites.length > 0 ? (
+            favorites.map(url => (
+              <Card
+                key={url}
+                cover={<img alt="Favorite" src={url} style={{ height: '150px', objectFit: 'cover' }} />}
+              />
+            ))
+          ) : (
+            <Text>Anda belum memiliki favorit.</Text>
+          )}
+        </Space>
+      </Drawer>
     </Layout>
   );
 }

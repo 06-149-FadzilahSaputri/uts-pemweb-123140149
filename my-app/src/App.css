@@ -1,0 +1,48 @@
+/* --- Override Tombol Switch Ant Design (Radio.Button) --- */
+
+/* 1. Mengganti warna TOMBOL AKTIF (checked) menjadi oranye */
+/* Ini adalah class untuk tombol yang sedang dipilih */
+.ant-radio-button-wrapper-checked {
+  background-color: #fa8c16 !important;
+  border-color: #fa8c16 !important;
+  color: white !important; /* Membuat teks 'Anjing'/'Kucing' jadi putih */
+}
+
+/* 2. Mengganti warna HOVER (saat mouse di atas) tombol yang TIDAK AKTIF */
+/* Ini memilih tombol yang :not(.ant-radio-button-wrapper-checked) saat di-:hover */
+.ant-radio-button-wrapper:not(.ant-radio-button-wrapper-checked):hover {
+  color: #fa8c16 !important; /* Warna teks jadi oranye */
+  border-color: #fa8c16 !important; /* Warna border jadi oranye */
+  background-color: #fff7e6 !important; /* Bonus: Latar belakang oranye sangat muda */
+}
+
+/* 3. Menghilangkan 'glow' BIRU saat tombol diklik/fokus */
+.ant-radio-button-wrapper:focus-within {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* --- Override Warna Hover & Fokus untuk Input dan Dropdown --- */
+
+/* 1. Mengganti BORDER saat di-HOVER (mouse di atas) */
+.ant-input:hover,
+.ant-input-number:hover,
+.ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+  border-color: #fa8c16 !important;
+}
+
+/* 2. Mengganti GLOW (bayangan) & BORDER saat di-FOKUS (diklik) */
+.ant-input:focus,
+.ant-input-focused,
+.ant-input-number:focus,
+.ant-input-number-focused,
+.ant-select-focused:not(.ant-select-disabled) .ant-select-selector,
+.ant-select:focus-within .ant-select-selector {
+  
+  border-color: #fa8c16 !important; /* Warna border jadi oranye */
+  
+  /* Ini adalah kode untuk 'glow' oranye (menggantikan 'glow' biru) */
+  box-shadow: 0 0 0 2px rgba(250, 140, 22, 0.2) !important; 
+  
+  outline: 0; /* Menghapus outline bawaan browser */
+}
