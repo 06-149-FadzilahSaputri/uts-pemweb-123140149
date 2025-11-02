@@ -14,7 +14,7 @@ const AppHeader = ({ onFavoritesClick }) => {
       justifyContent: 'space-between', 
       background: '#fff', 
       borderBottom: '1px solid #f0f0f0',
-      paddingInline: '24px' // Tambahkan padding agar tidak mepet di mobile
+      paddingInline: '24px'
     }}>
       
       <Title level={3} style={{ color: '#fa8c16', margin: 0, display: 'flex', alignItems: 'center' }}>
@@ -28,9 +28,7 @@ const AppHeader = ({ onFavoritesClick }) => {
             width: '30px'   
           }} 
         />
-        {/* --- PERUBAHAN DI SINI --- */}
         Galeri Fakta Hewan
-        {/* --- AKHIR PERUBAHAN --- */}
       </Title>
       
       
